@@ -4,29 +4,30 @@ const uniqueValidator = require('mongoose-unique-validator')
 const vehicleSchema = new mongoose.Schema({
     driver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Driver'
+        ref: 'Driver',
+        required: true
     },
     class: {
         type: String,
     },
     name: {
         type: String,
+        required: true
     },
     description: {
         type: String,
     }
 })
 
-driverSchema.plugin(uniqueValidator)
+vehicleSchema.plugin(uniqueValidator)
 
-driverSchema.set('toJSON', {
+vehicleSchema.set('toJSON', {
     transform: (document, returnedObject) => {
         returnedObject.id = returnedObject._id.toString()
         delete returnedObject._id
         delete returnedObject.__v
-        delete returnedObject.passwordHash
     }
 })
-const Driver = mongoose.model('Driver', driverSchema)
+const Vehicle = mongoose.model('Driver', vehicleSchema)
 
-module.exports = Driver
+module.exports = Vehicle
