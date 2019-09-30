@@ -4,6 +4,7 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const driverRouter = require('./controllers/drivers')
+const loginRouter = require('./controllers/login')
 
 
 mongoose.connect(`mongodb+srv://pakedi:1234@cluster0-aokec.mongodb.net/ralliPinta?retryWrites=true&w=majority`, { useNewUrlParser: true })
@@ -19,5 +20,6 @@ app.use(express.static('build'))
 app.use(bodyParser.json())
 
 app.use('/api/drivers', driverRouter)
+app.use('/api/login', loginRouter)
 
 module.exports = app
