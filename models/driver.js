@@ -12,7 +12,7 @@ const driverSchema = new mongoose.Schema({
     organization: {
         type: String,
     },
-    session: [{
+    sessions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Session'
     }],
@@ -21,12 +21,12 @@ const driverSchema = new mongoose.Schema({
         required: true
 
     },
-    userName: {
+    username: {
         type: String,
         required: true,
         unique: true
     },
-    vehicle: [{
+    vehicles: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Vehicle'
     }]

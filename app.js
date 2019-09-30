@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
+const driverRouter = require('./controllers/drivers')
 
 
 mongoose.connect(`mongodb+srv://pakedi:1234@cluster0-aokec.mongodb.net/ralliPinta?retryWrites=true&w=majority`, { useNewUrlParser: true })
@@ -16,5 +17,7 @@ mongoose.connect(`mongodb+srv://pakedi:1234@cluster0-aokec.mongodb.net/ralliPint
 app.use(cors())
 app.use(express.static('build'))
 app.use(bodyParser.json())
+
+app.use('/api/drivers', driverRouter)
 
 module.exports = app
