@@ -19,7 +19,6 @@ const driverSchema = new mongoose.Schema({
     passwordHash: {
         type: String,
         required: true
-
     },
     username: {
         type: String,

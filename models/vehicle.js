@@ -28,6 +28,6 @@ vehicleSchema.set('toJSON', {
         delete returnedObject.__v
     }
 })
-const Vehicle = mongoose.model('Driver', vehicleSchema)
+const Vehicle = mongoose.model('Vehicle', vehicleSchema)
 
 module.exports = Vehicle

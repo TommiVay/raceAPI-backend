@@ -4,7 +4,8 @@ const uniqueValidator = require('mongoose-unique-validator')
 const sessionSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     vehicles: [{
         type: mongoose.Schema.ObjectId,
@@ -30,6 +31,8 @@ const sessionSchema = new mongoose.Schema({
         type: Date,
     }
 })
+
+sessionSchema.plugin(uniqueValidator)
 
 sessionSchema.set('toJSON', {
     transform: (document, returnedObject) => {

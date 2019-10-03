@@ -7,16 +7,17 @@ const trackSchema = new mongoose.Schema({
         required: true
     },
     map: {
-        type: Image,
+        data: Buffer,
+        contentType: String 
     },
     address: {
         type: String,
         required: true
     },
-    session: {
+    sessions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Session'
-    }
+    }]
 })
 
 trackSchema.set('toJSON', {

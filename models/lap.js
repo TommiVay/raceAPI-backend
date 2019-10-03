@@ -9,18 +9,22 @@ const lapSchema = new mongoose.Schema({
     },
     vehicle: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Vehicle'
+        ref: 'Vehicle',
+        required: true
     },
     driver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Driver'
+        ref: 'Driver',
+        required: true
     },
     track: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Track'
+        ref: 'Track',
+        required: true
     },
     time: {
-        type: Date,
+        type: String,
+        required: true
     },
     notes: {
         type: String,
