@@ -4,11 +4,29 @@ const Track = require('../models/track')
 
 sessionsRouter.get('/', async (request, response) => {
     try {
-        const sessions = await Session.find({})
-        .populate('track', {name:1, address:1})
-        .populate( 'laps',{driver:1, time:1, vehicle:1})
-        .populate('vehicles',{name:1})
-        .populate('drivers',{name:1, username:1})
+        let sessions = await Session.find({})
+            .populate('track', { name: 1, address: 1 })
+            .populate('laps', { driver: 1, time: 1, vehicle: 1 })
+            .populate('vehicles', { name: 1 })
+            .populate('drivers', { name: 1, username: 1 })
+
+
+        if (request.query.name) {
+            sessions = sessions.filter(s => s.name.toLowerCase() === request.query.name.toLowerCase())
+        }
+        if (request.query.vehicle) {
+            sessions = sessions.filter(s => s.vehicles.map(v => v.name.toLowerCase()).includes(request.query.vehicle.toLowerCase()))
+        }
+        if(request.query.driver){
+            sessions = sessions.filter(s => s.drivers.map(d => d.name.toLowerCase()).includes(request.query.driver.toLowerCase()))
+        }
+        if(request.query.track){
+            sessions = sessions.filter(s => s.track.name.toLowerCase() === request.query.track.toLowerCase())
+        }
+        
+
+
+
         response.json(sessions.map(s => s.toJSON()))
     } catch (exception) {
         console.log('sessionrouter get virhe')
@@ -18,26 +36,31 @@ sessionsRouter.get('/', async (request, response) => {
 sessionsRouter.post('/', async (request, response) => {
     const body = request.body
 
-    const track = await Track.findById(body.track)
+    if (body.name === undefined
+        || body.track === undefined
+        || body.startDate === undefined
+        || body.endDate === undefined) {
+        return response.status(400).json({ error: 'some properties are missing' })
+    }
 
     try {
-        if (body.name === undefined || body.track === undefined) {
-            response.status(400).end()
-        } else {
-            const session = new Session({
-                name: body.name,
-                drivers: body.drivers,
-                vehicles: body.vehicles,
-                track: track._id,
-                laps: body.laps,
-                startDate: body.startDate,
-                endDate: body.endDate
-            })
-            const savedSession = await session.save()
-            track.sessions = track.sessions.concat(savedSession._id)
-            await track.save()
-            response.json(savedSession.toJSON())
-        }
+        const track = await Track.findById(body.track)
+
+
+        const session = new Session({
+            name: body.name,
+            drivers: body.drivers,
+            vehicles: body.vehicles,
+            track: track._id,
+            laps: body.laps,
+            startDate: body.startDate,
+            endDate: body.endDate
+        })
+        const savedSession = await session.save()
+        track.sessions = track.sessions.concat(savedSession._id)
+        await track.save()
+        response.json(savedSession.toJSON())
+
     } catch (exception) {
         console.log('sessionrouter post virhe')
         console.log(exception);
@@ -45,10 +68,10 @@ sessionsRouter.post('/', async (request, response) => {
 })
 
 sessionsRouter.delete('/:id', async (request, response) => {
-    try{
+    try {
         await Session.findByIdAndRemove(request.params.id)
         response.status(204).end()
-    }catch(exception){
+    } catch (exception) {
         console.log('sessionRouter delete virhe')
     }
 })
@@ -65,10 +88,10 @@ sessionsRouter.put('/:id', async (request, response) => {
         startDate: body.startDate === undefined ? sessionToUpdate.startDate : body.startDate,
         endDate: body.endDate === undefined ? sessionToUpdate.endDate : body.endDate
     }
-    try{
-        const updatedSession = await Session.findByIdAndUpdate(request.params.id, session, {new: true})
+    try {
+        const updatedSession = await Session.findByIdAndUpdate(request.params.id, session, { new: true })
         response.json(updatedSession.toJSON())
-    }catch(exception){
+    } catch (exception) {
         console.log('sessionRouter put virhe')
     }
 })

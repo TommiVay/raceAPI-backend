@@ -2,12 +2,27 @@ const tracksRouter = require('express').Router()
 const Track = require('../models/track')
 
 tracksRouter.get('/', async (request, response) => {
-    const tracks = await Track.find({}).populate('sessions', {name: 1, startDate:1, endDate:1})
+    let tracks = await Track.find({}).populate('sessions', {name: 1, startDate:1, endDate:1})
+    
+    if(request.query.name){
+        tracks = tracks.filter(t => t.name.toLowerCase() === request.query.name.toLowerCase())
+    }
+    if(request.query.address){
+        tracks = tracks.filter(t => t.address.toLowerCase() === request.query.address.toLowerCase())
+    }
+    if(request.query.session){
+        tracks = tracks.filter(t => t.sessions.map(s => s.name.toLowerCase()).includes(request.query.session.toLowerCase()))
+    }
     response.json(tracks.map(t=>t.toJSON()))
 })
 
 tracksRouter.post('/', async (request, response) => {
     const body = request.body
+
+    if(body.name === undefined
+        || body.address === undefined){
+            return response.status(400).json({ error: 'some properties are missing' })
+        }
 
     try{
         const track = new Track({

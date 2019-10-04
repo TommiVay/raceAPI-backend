@@ -5,6 +5,7 @@ const Driver = require('../models/driver')
 
 loginRouter.post('/', async (request, response) => {
     const body = request.body
+    try{
     const driver = await Driver.findOne({ username: body.username })
     const passwordCorrect = driver === null
         ? false
@@ -30,6 +31,9 @@ loginRouter.post('/', async (request, response) => {
             username: driver.username,
             name: driver.name
         })
+    }catch(exception){
+        console.log(exception)
+    }
 })
 
 module.exports = loginRouter
