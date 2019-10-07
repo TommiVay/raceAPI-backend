@@ -9,6 +9,7 @@ const sessionsRouter = require('./controllers/sessions')
 const tracksRouter = require('./controllers/tracks')
 const vehiclesRouter = require('./controllers/vehicles')
 const lapsRouter = require('./controllers/laps')
+const middleware = require('./utils/middleware')
 
 mongoose.connect(`mongodb+srv://pakedi:1234@cluster0-aokec.mongodb.net/ralliPinta?retryWrites=true&w=majority`, { useNewUrlParser: true })
   .then(() => {
@@ -21,6 +22,8 @@ mongoose.connect(`mongodb+srv://pakedi:1234@cluster0-aokec.mongodb.net/ralliPint
 app.use(cors())
 app.use(express.static('build'))
 app.use(bodyParser.json())
+app.use(middleware.requestLogger)
+app.use(middleware.tokenExtractor)
 
 app.use('/api/drivers', driversRouter)
 app.use('/api/login', loginRouter)
@@ -28,5 +31,8 @@ app.use('/api/sessions', sessionsRouter)
 app.use('/api/tracks', tracksRouter)
 app.use('/api/vehicles', vehiclesRouter)
 app.use('/api/laps', lapsRouter)
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 module.exports = app

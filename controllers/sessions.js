@@ -1,8 +1,8 @@
 const sessionsRouter = require('express').Router()
 const Session = require('../models/session')
 const Track = require('../models/track')
-
-sessionsRouter.get('/', async (request, response) => {
+const jwt = require('jsonwebtoken')
+sessionsRouter.get('/', async (request, response, next) => {
     try {
         let sessions = await Session.find({})
             .populate('track', { name: 1, address: 1 })
@@ -17,24 +17,34 @@ sessionsRouter.get('/', async (request, response) => {
         if (request.query.vehicle) {
             sessions = sessions.filter(s => s.vehicles.map(v => v.name.toLowerCase()).includes(request.query.vehicle.toLowerCase()))
         }
-        if(request.query.driver){
+        if (request.query.driver) {
             sessions = sessions.filter(s => s.drivers.map(d => d.name.toLowerCase()).includes(request.query.driver.toLowerCase()))
         }
-        if(request.query.track){
+        if (request.query.track) {
             sessions = sessions.filter(s => s.track.name.toLowerCase() === request.query.track.toLowerCase())
         }
-        
+
 
 
 
         response.json(sessions.map(s => s.toJSON()))
     } catch (exception) {
-        console.log('sessionrouter get virhe')
+        next(exception)
     }
 })
 
-sessionsRouter.post('/', async (request, response) => {
+sessionsRouter.post('/', async (request, response, next) => {
     const body = request.body
+
+    const token = request.token
+    if (!token) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const decodedToken = jwt.verify(token, "ASD")
+    if (!token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
 
     if (body.name === undefined
         || body.track === undefined
@@ -62,22 +72,39 @@ sessionsRouter.post('/', async (request, response) => {
         response.json(savedSession.toJSON())
 
     } catch (exception) {
-        console.log('sessionrouter post virhe')
-        console.log(exception);
+        next(exception)
     }
 })
 
-sessionsRouter.delete('/:id', async (request, response) => {
+sessionsRouter.delete('/:id', async (request, response, next) => {
+    const token = request.token
+    if (!token) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const decodedToken = jwt.verify(token, "ASD")
+    if (!token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
     try {
         await Session.findByIdAndRemove(request.params.id)
         response.status(204).end()
     } catch (exception) {
-        console.log('sessionRouter delete virhe')
+        next(exception)
     }
 })
 
-sessionsRouter.put('/:id', async (request, response) => {
+sessionsRouter.put('/:id', async (request, response, next) => {
     const body = request.body
+    const token = request.token
+    if (!token) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const decodedToken = jwt.verify(token, "ASD")
+    if (!token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
     const sessionToUpdate = await Session.findById(request.params.id)
     const session = {
         name: body.name === undefined ? sessionToUpdate.name : body.name,
@@ -92,7 +119,7 @@ sessionsRouter.put('/:id', async (request, response) => {
         const updatedSession = await Session.findByIdAndUpdate(request.params.id, session, { new: true })
         response.json(updatedSession.toJSON())
     } catch (exception) {
-        console.log('sessionRouter put virhe')
+        next(exception)
     }
 })
 

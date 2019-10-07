@@ -4,8 +4,9 @@ const Vehicle = require('../models/vehicle')
 const Driver = require('../models/driver')
 const Track = require('../models/track')
 const Session = require('../models/session')
+const jwt = require('jsonwebtoken')
 
-lapsRouter.get('/', async (request, response) => {
+lapsRouter.get('/', async (request, response, next) => {
     try {
         let laps = await Lap.find({})
             .populate('session', { name: 1 })
@@ -25,29 +26,33 @@ lapsRouter.get('/', async (request, response) => {
             laps = laps.filter(l => l.driver.name.toLowerCase() === request.query.driver)
         }
 
-
-
         response.json(laps.map(l => l.toJSON()))
     } catch (exception) {
-        console.log(exception)
+        next(exception)
     }
 })
 
-lapsRouter.post('/', async (request, response) => {
+lapsRouter.post('/', async (request, response, next) => {
     const body = request.body
+    const token = request.token
+    if (!token) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
 
-    if(body.session === undefined
-        || body.vehicle === undefined
-        || body.driver === undefined
-        || body.track === undefined
-        || body.time === undefined){
+    const decodedToken = jwt.verify(token, "ASD")
+    if (!token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    try {
+        if (body.session === undefined
+            || body.vehicle === undefined
+            || body.driver === undefined
+            || body.track === undefined
+            || body.time === undefined) {
             return response.status(400).json({ error: 'some properties are missing' })
         }
 
-
-
-
-    try {
         const session = await Session.findById(body.session)
         const driver = await Driver.findById(body.driver)
         const vehicle = await Vehicle.findById(body.vehicle)
@@ -64,7 +69,7 @@ lapsRouter.post('/', async (request, response) => {
 
         const savedLap = await lap.save()
         session.laps = session.laps.concat(savedLap)
-        
+
         if (!session.drivers.includes(driver._id)) {
             session.drivers = session.drivers.concat(driver)
         }
@@ -78,27 +83,47 @@ lapsRouter.post('/', async (request, response) => {
         if (!driver.sessions.includes(session._id)) {
             driver.sessions = driver.sessions.concat(session)
             await driver.save()
+
         }
-
-
-
         response.json(savedLap.toJSON())
     } catch (exception) {
-        console.log(exception)
+        next(exception)
     }
 
 })
 
-lapsRouter.delete('/:id', async (request, response) => {
+lapsRouter.delete('/:id', async (request, response, next) => {
+    const token = request.token
+    if (!token) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const decodedToken = jwt.verify(token, "ASD")
+    if (!token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
     try {
         await Lap.findByIdAndRemove(request.params.id)
+        response.status(200).end()
     } catch (exception) {
-        console.log(exception)
+        next(exception)
     }
 })
 
-lapsRouter.put('/:id', async (request, response) => {
+lapsRouter.put('/:id', async (request, response, next) => {
     const body = request.body
+
+    const token = request.token
+    if (!token) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const decodedToken = jwt.verify(token, "ASD")
+    if (!token || !decodedToken.id) {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
     const lapToUpdate = await Lap.findById(request.params.id)
     const lap = {
         session: body.session === undefined ? lapToUpdate.session : body.session,
@@ -113,7 +138,7 @@ lapsRouter.put('/:id', async (request, response) => {
         const updatedLap = await Lap.findByIdAndUpdate(request.params.id, lap, { new: true })
         response.json(updatedSession.toJSON())
     } catch (exception) {
-        console.log(exception)
+        next(exception)
     }
 })
 

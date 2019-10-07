@@ -1,0 +1,12 @@
+post http://localhost:3003/api/laps 
+Content-Type: application/json
+
+
+{
+	"session": "5d9700883444a42464df2a0e",
+          "vehicle": "5d96fdcc3444a42464df2a05",
+          "driver": "5d96fcc33444a42464df2a02",
+          "track": "5d96ffca3444a42464df2a0b",
+          "time": "01:43.21",
+          "notes": "kierros 1"  
+}
