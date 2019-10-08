@@ -25,8 +25,6 @@ loginRouter.post('/', async (request, response, next) => {
 
         const token = jwt.sign(driverForToken, "ASD")
 
-        console.log('asdasdasd')
-
         response
             .status(200)
             .send({
