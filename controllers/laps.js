@@ -136,7 +136,7 @@ lapsRouter.put('/:id', async (request, response, next) => {
 
     try {
         const updatedLap = await Lap.findByIdAndUpdate(request.params.id, lap, { new: true })
-        response.json(updatedSession.toJSON())
+        response.json(updatedLap.toJSON())
     } catch (exception) {
         next(exception)
     }

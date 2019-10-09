@@ -1,6 +1,8 @@
 const tracksRouter = require('express').Router()
 const Track = require('../models/track')
 const jwt = require('jsonwebtoken')
+const Session = require('../models/session')
+const Lap = require('../models/lap')
 
 tracksRouter.get('/', async (request, response, next) => {
     try {
@@ -65,7 +67,16 @@ tracksRouter.delete('/:id', async (request, response, next) => {
         return response.status(401).json({ error: 'token missing or invalid' })
     }
     try {
-        await Track.findByIdAndRemove(request.params.id)
+        const track = await Track.findById(request.params.id)
+        let sessions = await Session.find({}).populate('track')
+        sessions = sessions.filter(s => s.track.name === track.name)
+        sessions.forEach(async s => s.laps.forEach( async l => 
+            await Lap.findByIdAndRemove(l._id)
+        ))
+        track.sessions.forEach(async s =>
+            await Session.findByIdAndRemove(s)
+            )
+        await Track.findByIdAndRemove(track._id)
         response.status(200).end()
     } catch (exception) {
         next(exception)

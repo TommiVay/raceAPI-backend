@@ -1,6 +1,8 @@
 const driversRouter = require('express').Router()
 const bcyrpt = require('bcrypt')
 const Driver = require('../models/driver')
+const Lap = require('../models/lap')
+const Vehicle = require('../models/vehicle')
 const jwt = require('jsonwebtoken')
 
 driversRouter.post('/', async (request, response, next) => {
@@ -111,7 +113,18 @@ driversRouter.delete('/:id', async (request, response, next) => {
         return response.status(401).json({ error: 'token missing or invalid' })
     }
     try {
-        const driver = await Driver.findByIdAndRemove(request.params.id)
+        const driver = await Driver.findById(request.params.id)
+        console.log(driver._id)
+        //poistetaan kaikki viittaukset poistettavaan kuskiin
+        let laps = await Lap.find({}).populate('driver', {username: 1})
+        laps = laps.filter(l => l.driver.username === driver.username)
+        laps.forEach(async l => 
+              await Lap.findByIdAndRemove(l._id)
+        )
+        driver.vehicles.forEach(async v => 
+             await Vehicle.findByIdAndRemove(v)
+        )
+        await Driver.findByIdAndRemove(request.params.id)
         response.status(200).end()
     } catch (exception) {
         next(exception)
