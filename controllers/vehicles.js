@@ -15,6 +15,9 @@ vehiclesRouter.get('/', async (request, response, next) => {
         if (request.query.name) {
             vehicles = vehicles.filter(v => v.name.toLowerCase() === request.query.name.toLowerCase())
         }
+        if(request.query.id) {
+            vehicles = vehicles.filter(v => v.id === request.query.id)
+        }
         response.json(vehicles.map(v => v.toJSON()))
     } catch (exception) {
         next(exception)
@@ -34,7 +37,6 @@ vehiclesRouter.post('/', async (request, response, next) => {
             name: body.name,
             description: body.description === undefined ? "" : body.description
         })
-
         const savedVehicle = await vehicle.save()
         driver.vehicles = driver.vehicles.concat(savedVehicle)
         await driver.save()

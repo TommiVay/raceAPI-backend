@@ -18,6 +18,10 @@ lapsRouter.get('/', async (request, response, next) => {
             laps = laps.filter(l => l.session.name.toLowerCase() === request.query.session.toLowerCase())
         }
 
+        if(request.query.id) {
+            laps = laps.filter(l => l.id === request.query.id)
+        }
+
         if (request.query.vehicle) {
             laps = laps.filter(l => l.vehicle.name.toLowerCase() === request.query.vehicle.toLowerCase())
         }

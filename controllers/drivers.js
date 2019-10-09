@@ -64,6 +64,9 @@ driversRouter.get('/', async (request, response, next) => {
         if (request.query.organization) {
             drivers = drivers.filter(d => d.organization.toLowerCase() === request.query.organization.toLowerCase())
         }
+        if(request.query.id) {
+            drivers = drivers.filter(d => d.id === request.query.id)
+        }
 
         response.json(drivers.map(d => d.toJSON()))
     } catch (exception) {

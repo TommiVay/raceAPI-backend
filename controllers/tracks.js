@@ -17,6 +17,9 @@ tracksRouter.get('/', async (request, response, next) => {
         if (request.query.session) {
             tracks = tracks.filter(t => t.sessions.map(s => s.name.toLowerCase()).includes(request.query.session.toLowerCase()))
         }
+        if(request.query.id) {
+            tracks = tracks.filter(t => t.id === request.query.id)
+        }
 
         response.json(tracks.map(t => t.toJSON()))
     } catch (exception) {

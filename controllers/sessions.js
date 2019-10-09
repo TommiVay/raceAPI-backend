@@ -24,6 +24,9 @@ sessionsRouter.get('/', async (request, response, next) => {
         if (request.query.track) {
             sessions = sessions.filter(s => s.track.name.toLowerCase() === request.query.track.toLowerCase())
         }
+        if(request.query.id) {
+            sessions = sessions.filter(s => s.id === request.query.id)
+        }
 
 
 
