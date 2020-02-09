@@ -1,3 +1,3 @@
 # rajapintakurssi
 
-![alt text](https://i.imgur.com/oobx4Gg.jpg)
+Documentation: https://drive.google.com/file/d/1y5mYMPsxizEnHKRXgi3sknPIkmknKL_M/view
